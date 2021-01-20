@@ -7,7 +7,7 @@ namespace DiningPhilosophers
     public class Philosopher
     {
         private int delayMultiplier = 100;
-        private readonly Random _rnd = new Random();
+        private readonly Random _rnd = new();
         private readonly Fork[] _forks;
         public State CurrentState { get; private set; } = State.Waiting;
 
@@ -20,16 +20,32 @@ namespace DiningPhilosophers
         {
             while (true)
             {
-                TryTakeFork(0);
-                TryTakeFork(1);
+                if (!TryTakeFork(0))
+                {
+                    ReleaseFork(1);
+                }
+                else if (!TryTakeFork(1))
+                {
+                    ReleaseFork(0);
+                }
+                
                 await TryToEat();
                 await Task.Delay(DelayDuration());
             }
         }
-        
-        private void TryTakeFork(int index)
+
+        private void ReleaseFork(int index)
+        {
+            if (_forks[index].Owner == this)
+            {
+                _forks[index].Owner = null;
+            }
+        }
+
+        private bool TryTakeFork(int index)
         {
             _forks[index].Owner ??= this;
+            return _forks[index].Owner == this;
         }
 
         private async Task TryToEat()
@@ -38,8 +54,8 @@ namespace DiningPhilosophers
             {
                 CurrentState = State.Eating;
                 await Task.Delay(DelayDuration());
-                _forks[0].Owner = null;
-                _forks[1].Owner = null;
+                ReleaseFork(0);
+                ReleaseFork(1);
             }
             CurrentState = State.Waiting;
         }
