@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiningPhilosophers
@@ -13,9 +14,11 @@ namespace DiningPhilosophers
             var philosophers = Enumerable.Range(0, forks.Length)
                 .Select(i => new Philosopher(new[] {forks[i], forks[(i + 1) % forks.Length]})).ToArray();
 
-            foreach (var philosopher in philosophers.SkipLast(0))
+            var threads = philosophers.Select(p => new Thread(p.Start));
+            
+            foreach (var thread in threads.SkipLast(0))
             {
-                philosopher.Start();
+                thread.Start();
             }
 
             while (true)
@@ -33,6 +36,10 @@ namespace DiningPhilosophers
                 else
                 {
                     Console.WriteLine("INCORRECT");
+                    foreach (var philosopher in philosophers)
+                    {
+                        Console.Write(philosopher.ToString());
+                    }
                     break;
                 }
             }
