@@ -29,7 +29,7 @@ namespace DiningPhilosophers
                 {
                     foreach (var philosopher in philosophers)
                     {
-                        Console.Write(philosopher.ToString());
+                        Console.WriteLine(philosopher.ToString());
                     }
                     await Task.Delay(5);
                 }
@@ -38,7 +38,7 @@ namespace DiningPhilosophers
                     Console.WriteLine("INCORRECT");
                     foreach (var philosopher in philosophers)
                     {
-                        Console.Write(philosopher.ToString());
+                        Console.WriteLine(philosopher.ToString());
                     }
                     break;
                 }

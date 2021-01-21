@@ -2,16 +2,11 @@ namespace DiningPhilosophers
 {
     public class Fork
     {
-        private readonly int _index;
+        public int Index { get; }
 
         public Fork(int index)
         {
-            _index = index;
-        }
-
-        public override string ToString()
-        {
-            return _index.ToString();
+            Index = index;
         }
     }
 }
