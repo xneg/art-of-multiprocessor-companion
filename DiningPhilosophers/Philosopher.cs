@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace DiningPhilosophers
@@ -12,20 +14,19 @@ namespace DiningPhilosophers
         private int _eaten;
         public State CurrentState { get; private set; } = State.Waiting;
 
-        public Philosopher(Fork[] forks)
+        public Philosopher(IEnumerable<Fork> forks)
         {
-            _forks = forks;
+            _forks = forks.OrderBy(f => f.Index).ToArray();
         }
 
         public void Start()
         {
             while (true)
             {
-                lock (_forks[0])
+                if (Monitor.TryEnter(_forks[0]))
                 {
                     _capturedForksIndexes = _forks[0].Index.ToString();
-                    //uncomment this for deadlock
-                    Thread.Sleep(TimeSpan.FromMilliseconds(DelayDuration()));
+
                     if (Monitor.TryEnter(_forks[1]))
                     {
                         _capturedForksIndexes += ' ' + _forks[1].Index.ToString();
@@ -38,10 +39,10 @@ namespace DiningPhilosophers
                         
                         Monitor.Exit(_forks[1]);
                     }
+                    Thread.Sleep(TimeSpan.FromMilliseconds(DelayDuration()));
+                    Monitor.Exit(_forks[0]);
                 }
                 _capturedForksIndexes = "";
-                //comment this for deadlock
-                // Thread.Sleep(TimeSpan.FromMilliseconds(DelayDuration()));
             }
         }
 
