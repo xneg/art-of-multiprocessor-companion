@@ -5,14 +5,14 @@ using System.Threading;
 
 namespace DiningPhilosophers
 {
-    public class Philosopher
+    public class Philosopher : IPhilosopher
     {
         private const int DelayMultiplier = 1;
         private readonly Random _rnd = new();
         private readonly Fork[] _forks;
         private string _capturedForksIndexes;
         private int _eaten;
-        public State CurrentState { get; private set; } = State.Waiting;
+        public PhilosopherState CurrentState { get; private set; } = PhilosopherState.Waiting;
 
         public Philosopher(IEnumerable<Fork> forks)
         {
@@ -31,15 +31,15 @@ namespace DiningPhilosophers
                     {
                         _capturedForksIndexes += ' ' + _forks[1].Index.ToString();
                         
-                        CurrentState = State.Eating;
-                        Thread.Sleep(TimeSpan.FromMilliseconds(100 * DelayDuration()));
+                        CurrentState = PhilosopherState.Eating;
+                        // Thread.Sleep(TimeSpan.FromMilliseconds(100 * DelayDuration()));
                         _eaten++;
-                        CurrentState = State.Waiting;
+                        CurrentState = PhilosopherState.Waiting;
                         _capturedForksIndexes = "";
                         
                         Monitor.Exit(_forks[1]);
                     }
-                    Thread.Sleep(TimeSpan.FromMilliseconds(DelayDuration()));
+                    // Thread.Sleep(TimeSpan.FromMilliseconds(DelayDuration()));
                     Monitor.Exit(_forks[0]);
                 }
                 _capturedForksIndexes = "";
@@ -50,13 +50,7 @@ namespace DiningPhilosophers
 
         public override string ToString()
         {
-            return $"{(CurrentState == State.Eating ? "e " : "  "),-2} {_capturedForksIndexes,-3} eaten: {_eaten, -20}";
-        }
-        
-        public enum State
-        {
-            Waiting = 0,
-            Eating = 1
+            return $"{(CurrentState == PhilosopherState.Eating ? "e " : "  "),-2} {_capturedForksIndexes,-3} eaten: {_eaten, -20}";
         }
     }
 }
