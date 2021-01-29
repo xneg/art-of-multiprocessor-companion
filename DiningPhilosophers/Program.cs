@@ -16,6 +16,10 @@ namespace DiningPhilosophers
             //     .Select(i => new Philosopher(new[] {forks[i], forks[(i + 1) % forks.Length]})).ToArray();
 
             var locks = Enumerable.Range(0, 5).Select(i => new MyPeterson()).ToArray();
+            
+            // var philosophers = Enumerable.Range(0, locks.Length)
+            //     .Select(i => new PhilosopherWithLock(locks[i], locks[(i + 1) % locks.Length])).ToArray();
+            
             var philosophers = Enumerable.Range(0, locks.Length)
                 .Select(i => 
                     new PhilosopherWithLock(
