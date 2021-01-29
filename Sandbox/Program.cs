@@ -13,7 +13,8 @@ namespace Sandbox
             var count = 5;
             var buckets = new long[count];
             var total = 0L;
-            ILock @lock = new UnfairFilterLock(count, 3); // new Peterson();
+            // ILock @lock = new UnfairFilterLock(count, 3); // new Peterson();
+            ILock @lock = new UnfairBakeryLock(count, 3); // new Peterson();
 
             var threads = Enumerable.Range(0, count).Select(i =>
             {
@@ -56,7 +57,7 @@ namespace Sandbox
                 {
                     Console.WriteLine(bucket);
                 }
-
+            
                 Console.WriteLine("total:" + total);
                 
                 await Task.Delay(500);

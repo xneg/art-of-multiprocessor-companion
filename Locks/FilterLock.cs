@@ -25,8 +25,13 @@ namespace Locks
                 while (_level.Where((_, k) => k != me).Any(l => l >= i)
                        && _victim[i] == me)
                 {
+                    Wait(me);
                 }
             }
+        }
+
+        protected virtual void Wait(int me)
+        {
         }
 
         public void Unlock()

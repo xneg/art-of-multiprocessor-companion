@@ -2,11 +2,11 @@ using System.Threading;
 
 namespace Locks
 {
-    public class UnfairFilterLock: FilterLock
+    public class UnfairBakeryLock: BakeryLock
     {
         private readonly int _victimThread;
 
-        public UnfairFilterLock(int count, int victimThread) : base(count)
+        public UnfairBakeryLock(int count, int victimThread) : base(count)
         {
             _victimThread = victimThread;
         }
