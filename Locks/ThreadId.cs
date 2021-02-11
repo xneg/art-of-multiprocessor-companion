@@ -10,5 +10,10 @@ namespace Locks
         private static int _counter;
         
         public static int Get() => MyId.Value;
+
+        public static void ZeroOut()
+        {
+            _counter = 0;
+        }
     }
 }

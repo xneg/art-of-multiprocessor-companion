@@ -48,7 +48,7 @@ namespace Locks
             return Enumerable.Range(0, _count).Where(i => i != me)
                 .Any(el =>
                 {
-                    if (Volatile.Read(ref _flag[el])) return true;
+                    if (!Volatile.Read(ref _flag[el])) return false;
 
                     var labelEl = Volatile.Read(ref _label[el]);
                     var labelMe = Volatile.Read(ref _label[me]);

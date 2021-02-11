@@ -4,7 +4,7 @@ namespace Locks
 {
     public class Peterson: ILock
     {
-        private volatile bool[] _flag = new bool[2];
+        private readonly bool[] _flag = new bool[2];
         private volatile int _victim;
         
         public void Lock()
@@ -12,6 +12,7 @@ namespace Locks
             var i = ThreadId.Get();
             var j = 1 - i;
             Volatile.Write(ref _flag[i], true);
+            Thread.MemoryBarrier();
             _victim = i;
             
             while(Volatile.Read(ref _flag[j]) && _victim == i) {}
@@ -19,8 +20,7 @@ namespace Locks
 
         public void Unlock()
         {
-            var i = ThreadId.Get();
-            Volatile.Write(ref _flag[i], false);
+            Volatile.Write(ref _flag[ThreadId.Get()], false);
         }
     }
 }
