@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 
 namespace Locks
 {
@@ -19,15 +20,20 @@ namespace Locks
             var me = ThreadId.Get();
             for (var i = 1; i < _count; i++)
             {
-                _level[me] = i;
-                _victim[i] = me;
+                Volatile.Write(ref _level[me], i);
+                Volatile.Write(ref _victim[i], me);
 
-                while (_level.Where((_, k) => k != me).Any(l => l >= i)
-                       && _victim[i] == me)
+                while (LevelCondition(me, i) && Volatile.Read(ref _victim[i]) == me)
                 {
                     Wait(me);
                 }
             }
+        }
+
+        private bool LevelCondition(int me, int i)
+        {
+            return Enumerable.Range(0, _level.Length).Where(j => j != me)
+                .Any(j => Volatile.Read(ref _level[j]) >= i);
         }
 
         protected virtual void Wait(int me)
@@ -36,7 +42,7 @@ namespace Locks
 
         public void Unlock()
         {
-            _level[ThreadId.Get()] = 0;
+            Volatile.Write(ref _level[ThreadId.Get()], 0);
         }
     }
 }

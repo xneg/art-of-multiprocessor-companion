@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 
 namespace Locks
 {
@@ -6,7 +7,7 @@ namespace Locks
     {
         private readonly bool[] _first;
         private readonly bool[] _second;
-        private int _k;
+        private volatile int _k;
 
         public DijkstraLock(int count)
         {
@@ -16,27 +17,38 @@ namespace Locks
         public void Lock()
         {
             var me = ThreadId.Get();
-            _first[me] = true;
+            Volatile.Write(ref _first[me], true);
 
-            while (!_second[me] || _second.Where((_, k) => k != me).Any(v => v))
+            while (!Volatile.Read(ref _second[me]) || OthersCondition(me))
             {
                 if (_k != me)
                 {
-                    _second[me] = false;
-                    if (!_first[_k]) { _k = me; }
+                    Volatile.Write(ref _second[me], false);
+                    if (!Volatile.Read(ref _first[_k])) { _k = me; }
                 }
                 else
                 {
-                    _second[me] = true;
+                    Volatile.Write(ref _second[me], true);
                 }
+                Wait(me);
             } 
+        }
+
+        private bool OthersCondition(int me)
+        {
+            return Enumerable.Range(0, _second.Length).Where(k => k != me)
+                .Any(k => Volatile.Read(ref _second[k]));
         }
 
         public void Unlock()
         {
             var me = ThreadId.Get();
-            _second[me] = false;
-            _first[me] = false;
+            Volatile.Write(ref _second[me], false);
+            Volatile.Write(ref _first[me], false);
+        }
+        
+        protected virtual void Wait(int me)
+        {
         }
     }
 }
