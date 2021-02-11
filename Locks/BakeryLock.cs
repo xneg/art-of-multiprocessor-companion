@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 
 namespace Locks
 {
@@ -17,12 +18,25 @@ namespace Locks
         public void Lock()
         {
             var me = ThreadId.Get();
-            _flag[me] = true;
-            _label[me] = _label.Max() + 1;
+            Volatile.Write(ref _flag[me], true);
+
+            var max = VolatileMax(_label);
+            Volatile.Write(ref _label[me], max + 1);
+            // _label[me] = _label.Max() + 1;
+            
             while (Condition(me))
             {
                 Wait(me);
             }
+        }
+
+        private long VolatileMax(long[] array)
+        {
+            return Enumerable.Range(0, array.Length).Aggregate(0L, (acc, i) =>
+            {
+                var x = Volatile.Read(ref array[i]);
+                return x > acc ? x : acc;
+            });
         }
 
         protected virtual void Wait(int me)
@@ -32,13 +46,20 @@ namespace Locks
         private bool Condition(int me)
         {
             return Enumerable.Range(0, _count).Where(i => i != me)
-                .Any(el => _flag[el] && 
-                           (_label[el] < _label[me] || _label[el] == _label[me] && el < me));
+                .Any(el =>
+                {
+                    if (Volatile.Read(ref _flag[el])) return true;
+
+                    var labelEl = Volatile.Read(ref _label[el]);
+                    var labelMe = Volatile.Read(ref _label[me]);
+                    
+                    return labelEl < labelMe || labelEl == labelMe && el < me;
+                });
         }
 
         public void Unlock()
         {
-            _flag[ThreadId.Get()] = false;
+            Volatile.Write(ref _flag[ThreadId.Get()], false);
         }
     }
 }

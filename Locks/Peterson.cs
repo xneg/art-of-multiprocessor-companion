@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace Locks
 {
     public class Peterson: ILock
@@ -9,16 +11,16 @@ namespace Locks
         {
             var i = ThreadId.Get();
             var j = 1 - i;
-            _flag[i] = true;
+            Volatile.Write(ref _flag[i], true);
             _victim = i;
             
-            while(_flag[j] && _victim == i) {}
+            while(Volatile.Read(ref _flag[j]) && _victim == i) {}
         }
 
         public void Unlock()
         {
             var i = ThreadId.Get();
-            _flag[i] = false;
+            Volatile.Write(ref _flag[i], false);
         }
     }
 }

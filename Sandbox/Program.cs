@@ -13,21 +13,22 @@ namespace Sandbox
             var count = 5;
             var buckets = new long[count];
             var total = 0L;
-            // ILock @lock = new UnfairFilterLock(count, 3); // new Peterson();
+            ILock @lock = new UnfairFilterLock(count, 3); // new Peterson();
             // ILock @lock = new BakeryLock(count);
-            ILock @lock = new DijkstraLock(count);
+            // ILock @lock = new DijkstraLock(count);
+            // ILock @lock = new UnfairDijkstraLock(count, 3);
 
             var threads = Enumerable.Range(0, count).Select(i =>
             {
                 return new Thread(() =>
                 {
-                    for (var j = 0; j < 10000; j++)
-                    {
-                        @lock.Lock();
-                        buckets[i]++;
-                        total++;
-                        @lock.Unlock();
-                    }
+                    // for (var j = 0; j < 10000; j++)
+                    // {
+                    //     @lock.Lock();
+                    //     buckets[i]++;
+                    //     total++;
+                    //     @lock.Unlock();
+                    // }
                     
                     // while (true)
                     // {
@@ -40,12 +41,12 @@ namespace Sandbox
                     // if (ThreadId.Get() == 3)
                     //     Thread.Sleep(10);
                     //
-                    // while (buckets[3] < 10)
-                    // {
-                    //     @lock.Lock();
-                    //     buckets[i]++;
-                    //     @lock.Unlock();
-                    // }
+                    while (buckets[3] < 10)
+                    {
+                        @lock.Lock();
+                        buckets[i]++;
+                        @lock.Unlock();
+                    }
                 });
             });
             
