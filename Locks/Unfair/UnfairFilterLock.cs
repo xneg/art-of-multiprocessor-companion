@@ -1,12 +1,12 @@
 using System.Threading;
 
-namespace Locks
+namespace Locks.Unfair
 {
-    public class UnfairDijkstraLock: DijkstraLock
+    public class UnfairFilterLock: FilterLock
     {
         private readonly int _victimThread;
-        
-        public UnfairDijkstraLock(int count, int victimThread) : base(count)
+
+        public UnfairFilterLock(int count, int victimThread) : base(count)
         {
             _victimThread = victimThread;
         }

@@ -2,7 +2,7 @@ using System.Threading;
 
 namespace Locks
 {
-    public class Peterson: ILock
+    public class PetersonLock: ILock
     {
         private readonly bool[] _flag = new bool[2];
         private volatile int _victim;

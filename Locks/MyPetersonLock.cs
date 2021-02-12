@@ -1,10 +1,12 @@
+using System.Threading;
+
 namespace Locks
 {
-    public class MyPeterson: ILock
+    public class MyPetersonLock: ILock
     {
         private volatile int _victim;
         private int _firstThreadId;
-        private volatile bool[] _flag = new bool[2];
+        private readonly bool[] _flag = new bool[2];
 
         public void SetFirstThreadId()
         {
@@ -15,16 +17,18 @@ namespace Locks
         {
             var i = _firstThreadId == ThreadId.Get() ? 0 : 1;
             var j = 1 - i;
-            _flag[i] = true;
+            
+            Volatile.Write(ref _flag[i], true);
+            Thread.MemoryBarrier();
             _victim = i;
             
-            while(_flag[j] && _victim == i) {}
+            while(Volatile.Read(ref _flag[j]) && _victim == i) {}
         }
 
         public void Unlock()
         {
             var i = _firstThreadId == ThreadId.Get() ? 0 : 1;
-            _flag[i] = false;
+            Volatile.Write(ref _flag[i], false);
         }
     }
 }

@@ -29,7 +29,8 @@ namespace Tests
             {
                 return new[]
                 {
-                    new object[] { new Peterson(), 2 },
+                    new object[] { new PetersonLock(), 2 },
+                    new object[] { new MyPetersonLock(), 2 },
                     new object[] { new FilterLock(5), 5 },
                     new object[] { new BakeryLock(5), 5 },
                     new object[] { new DijkstraLock(5), 5 },

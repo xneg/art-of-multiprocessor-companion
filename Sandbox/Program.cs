@@ -14,7 +14,7 @@ namespace Sandbox
             var buckets = new long[count];
             var total = 0L;
             // ILock @lock = new UnfairFilterLock(count, 3); // new Peterson();
-            ILock @lock = new Peterson();
+            ILock @lock = new PetersonLock();
             // ILock @lock = new BakeryLock(count);
             // ILock @lock = new FilterLock(count);
             // ILock @lock = new DijkstraLock(count);
