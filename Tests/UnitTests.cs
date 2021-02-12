@@ -8,11 +8,19 @@ namespace Tests
 {
     public class UnitTests
     {
+        [Fact]
+        public void ForNoLockMutualExclusionIsNotRespected()
+        {
+            var result = CheckMutualExclusion(new NoLock(), 5, 1000);
+            Assert.True(5 * 1000 > result);
+        }
+        
         [Theory]
         [MemberData(nameof(GetLocks))]
         public void MutualExclusionShouldBeRespected(ILock @lock, int count)
         {
-            CheckMutualExclusion(@lock, count);
+            var result = CheckMutualExclusion(@lock, count, 10000);
+            Assert.Equal(count * 10000, result);
         }
         
         public static IEnumerable<object[]> GetLocks
@@ -29,12 +37,11 @@ namespace Tests
             }
         }
 
-        private static void CheckMutualExclusion(ILock @lock, int count)
+        private static long CheckMutualExclusion(ILock @lock, int count, int cyclesCount)
         {
             var buckets = new long[count];
             var finished = new bool[count];
             var total = 0L;
-            var cyclesCount = 100000;
 
             ThreadId.ZeroOut();
             
@@ -63,7 +70,7 @@ namespace Tests
             {
             }
 
-            Assert.Equal(cyclesCount * count, total);
+            return total;
         }
     }
 }
